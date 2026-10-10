@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Kuji Shop Saver",
+  "version": "0.4.0",
+  "description": "1kuji 매장을 저장하고 관리합니다.",
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://1kuji.com/*"
+  ],
+  "action": {
+    "default_title": "Kuji Shop Saver"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://1kuji.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

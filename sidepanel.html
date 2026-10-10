@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Kuji Shop Saver</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      color: #222;
+    }
+    h2 { margin: 0 0 16px; font-size: 18px; }
+    button {
+      cursor: pointer;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+    #currentShop {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+    }
+    #currentShop .shop-name { font-weight: bold; margin-bottom: 6px; }
+    #currentShop .address { font-size: 13px; color: #666; line-height: 1.4; }
+    #saveButton {
+      width: 100%;
+      margin-top: 10px;
+      background: #222;
+      color: white;
+    }
+    #saveButton:disabled { background: #aaa; cursor: default; }
+    #copyAllButton {
+      width: 100%;
+      margin-top: 10px;
+      background: #2e7d32;
+      color: white;
+    }
+    #routeButton {
+      width: 100%;
+      margin-top: 10px;
+      background: #1a73e8;
+      color: white;
+    }
+    #exportCsvButton {
+      width: 100%;
+      margin-top: 10px;
+      background: #455a64;
+      color: white;
+    }
+    #routeButton:disabled { background: #aaa; cursor: default; }
+    .section-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
+    .shop-list { display: flex; flex-direction: column; gap: 8px; }
+    .shop-item {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .shop-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .shop-item-index {
+      min-width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #eef3ff;
+      color: #1a73e8;
+      font-weight: 700;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .shop-item-name {
+      flex: 1;
+      font-weight: bold;
+      font-size: 14px;
+      margin: 0;
+    }
+    .drag-handle {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #dfe3ea;
+      background: #f5f7fa;
+      color: #5f6873;
+      border-radius: 8px;
+      font-size: 16px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      user-select: none;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+    .shop-item-address { font-size: 12px; color: #666; line-height: 1.4; margin-bottom: 8px; }
+    .shop-item-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      color: #444;
+      margin-bottom: 10px;
+    }
+    .shop-item-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .shop-item-details {
+      margin-top: 10px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+    .shop-item-details summary {
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a73e8;
+      list-style: none;
+      margin-bottom: 8px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      background: #f3f8ff;
+      display: inline-block;
+    }
+    .shop-item-details summary::-webkit-details-marker { display: none; }
+    .shop-detail-form {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid #edf0f2;
+      border-radius: 8px;
+      background: #fafbfc;
+    }
+    .meta-row {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 12px;
+      color: #333;
+      margin: 0;
+    }
+    .meta-row label {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-weight: 600;
+      margin: 0;
+    }
+    .meta-row input,
+    .meta-row select,
+    .meta-row textarea {
+      width: 100%;
+      border: 1px solid #dfe5eb;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: inherit;
+      background: white;
+      margin: 0;
+    }
+    .meta-row textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+    .save-meta-button {
+      margin-top: 4px;
+      background: #2e7d32;
+      color: white;
+      width: 100%;
+      font-size: 12px;
+    }
+    #emptyMessage { color: #888; font-size: 13px; padding: 10px 0; }
+    #message { font-size: 12px; color: #666; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h2>📌 Kuji Shop Saver</h2>
+
+  <div id="currentShop">
+    <div class="shop-name" id="currentShopName">매장을 선택해주세요.</div>
+    <div class="address" id="currentShopAddress">
+      1kuji 지도에서 매장을 클릭하면 여기에 표시됩니다.
+    </div>
+    <button id="saveButton" disabled>＋ 현재 매장 저장</button>
+    <button id="copyAllButton">📋 전체 리스트 복사</button>
+    <button id="exportCsvButton" type="button">📄 마이맵용 CSV 다운로드</button>
+    <button id="routeButton" disabled>🧭 최적 경로 보기</button>
+    <div id="message"></div>
+  </div>
+
+  <div class="section-title">
+    저장한 매장 (<span id="shopCount">0</span>)
+  </div>
+
+  <div id="shopList" class="shop-list"></div>
+  <div id="emptyMessage">아직 저장한 매장이 없습니다.</div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
